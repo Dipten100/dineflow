@@ -66,6 +66,12 @@
 			<optional>true</optional>
 		</dependency>
 
+		<!-- Jackson -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
 		<!-- JWT -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

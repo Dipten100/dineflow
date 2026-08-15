@@ -1,17 +1,26 @@
 package com.dineflow.dineflow_backend.config;
 
+import com.dineflow.dineflow_backend.security.CustomJwtAuthenticationConverter;
 import com.dineflow.dineflow_backend.security.CustomUserDetailsService;
+import com.dineflow.dineflow_backend.security.RestAccessDeniedHandler;
+import com.dineflow.dineflow_backend.security.RestAuthenticationEntryPoint;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -19,60 +28,81 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CustomUserDetailsService userDetailsService;
+        private final CustomUserDetailsService userDetailsService;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }
+        private final RestAuthenticationEntryPoint authenticationEntryPoint;
 
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
+        private final RestAccessDeniedHandler accessDeniedHandler;
 
-        DaoAuthenticationProvider provider =
-                new DaoAuthenticationProvider(userDetailsService);
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return PasswordEncoderFactories
+                                .createDelegatingPasswordEncoder();
+        }
 
-        provider.setPasswordEncoder(passwordEncoder());
+        @Bean
+        public AuthenticationProvider authenticationProvider() {
 
-        return provider;
-    }
+                DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
 
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationProvider authenticationProvider) {
+                provider.setPasswordEncoder(passwordEncoder());
 
-        return new org.springframework.security.authentication.ProviderManager(
-                authenticationProvider
-        );
-    }
+                return provider;
+        }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http,
-            AuthenticationProvider authenticationProvider
-    ) throws Exception {
+        @Bean
+        public AuthenticationManager authenticationManager(
+                        AuthenticationProvider authenticationProvider) {
 
-        http
-            .csrf(csrf -> csrf.disable())
+                return new org.springframework.security.authentication.ProviderManager(
+                                authenticationProvider);
+        }
 
-            .sessionManagement(session ->
-                    session.sessionCreationPolicy(
-                            SessionCreationPolicy.STATELESS
-                    )
-            )
+        @Bean
+        public CustomJwtAuthenticationConverter jwtAuthenticationConverter() {
 
-            .authenticationProvider(authenticationProvider)
+                return new CustomJwtAuthenticationConverter();
+        }
 
-            .authorizeHttpRequests(auth -> auth
+        @Bean
+        public SecurityFilterChain securityFilterChain(
+                        HttpSecurity http,
+                        AuthenticationProvider authenticationProvider,
+                        CustomJwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
 
-                    .requestMatchers(
-                            "/api/auth/**"
-                    ).permitAll()
+                http
+                                .csrf(csrf -> csrf.disable())
 
-                    .anyRequest()
-                    .authenticated()
-            );
+                                .sessionManagement(session -> session.sessionCreationPolicy(
+                                                SessionCreationPolicy.STATELESS))
 
-        return http.build();
-    }
+                                .authenticationProvider(authenticationProvider)
+
+                                // Authentication / Authorization errors
+                                .exceptionHandling(exception -> exception
+                                                .authenticationEntryPoint(
+                                                                authenticationEntryPoint)
+                                                .accessDeniedHandler(
+                                                                accessDeniedHandler))
+
+                                .authorizeHttpRequests(auth -> auth
+
+                                                // Public APIs
+                                                .requestMatchers(
+                                                                "/api/auth/**")
+                                                .permitAll()
+
+                                                // Everything else requires login
+                                                .anyRequest()
+                                                .authenticated())
+
+                                // JWT authentication
+                                .oauth2ResourceServer(oauth2 -> oauth2
+                                                .authenticationEntryPoint(
+                                                                authenticationEntryPoint)
+                                                .jwt(jwt -> jwt.jwtAuthenticationConverter(
+                                                                jwtAuthenticationConverter)));
+
+                return http.build();
+        }
 }

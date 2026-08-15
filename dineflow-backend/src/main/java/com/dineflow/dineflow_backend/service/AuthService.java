@@ -1,19 +1,26 @@
 package com.dineflow.dineflow_backend.service;
 
+import com.dineflow.dineflow_backend.dto.auth.ForgotPasswordRequest;
 import com.dineflow.dineflow_backend.dto.auth.LoginRequest;
 import com.dineflow.dineflow_backend.dto.auth.LoginResponse;
 import com.dineflow.dineflow_backend.dto.auth.RegisterRequest;
+import com.dineflow.dineflow_backend.dto.auth.ResetPasswordRequest;
 import com.dineflow.dineflow_backend.entity.Customer;
+import com.dineflow.dineflow_backend.entity.PasswordResetToken;
 import com.dineflow.dineflow_backend.entity.Permission;
 import com.dineflow.dineflow_backend.entity.Role;
 import com.dineflow.dineflow_backend.entity.User;
 import com.dineflow.dineflow_backend.repository.CustomerRepository;
+import com.dineflow.dineflow_backend.repository.PasswordResetTokenRepository;
 import com.dineflow.dineflow_backend.repository.RoleRepository;
 import com.dineflow.dineflow_backend.repository.UserRepository;
 import com.dineflow.dineflow_backend.security.JwtService;
+import com.dineflow.dineflow_backend.security.PasswordResetTokenService;
+import com.dineflow.dineflow_backend.security.TokenHashService;
 
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.security.authentication.AuthenticationManager;
@@ -32,6 +39,9 @@ public class AuthService {
         private final PasswordEncoder passwordEncoder;
         private final AuthenticationManager authenticationManager;
         private final JwtService jwtService;
+        private final PasswordResetTokenRepository passwordResetTokenRepository;
+        private final PasswordResetTokenService passwordResetTokenService;
+        private final TokenHashService tokenHashService;
 
         @Transactional
         public void registerCustomer(RegisterRequest request) {
@@ -113,4 +123,85 @@ public class AuthService {
                                 .superAdmin(user.isSuperAdmin())
                                 .build();
         }
+
+        @Transactional
+        public String forgotPassword(
+                        ForgotPasswordRequest request) {
+
+                String email = request.getEmail()
+                                .trim()
+                                .toLowerCase();
+
+                User user = userRepository.findByEmail(email)
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "No account found with this email"));
+
+                // Remove old reset tokens
+                passwordResetTokenRepository
+                                .deleteByUserId(user.getId());
+
+                String rawToken = passwordResetTokenService.generateToken();
+
+                String tokenHash = tokenHashService.hash(rawToken);
+
+                PasswordResetToken resetToken = PasswordResetToken.builder()
+                                .user(user)
+                                .tokenHash(tokenHash)
+                                .expiresAt(
+                                                LocalDateTime.now()
+                                                                .plusMinutes(15))
+                                .createdAt(LocalDateTime.now())
+                                .build();
+
+                passwordResetTokenRepository.save(
+                                resetToken);
+
+                /*
+                 * DEVELOPMENT ONLY
+                 *
+                 * Later this token will be sent by email.
+                 */
+                return rawToken;
+        }
+
+        @Transactional
+        public void resetPassword(
+                        ResetPasswordRequest request) {
+
+                String tokenHash = tokenHashService.hash(
+                                request.getToken());
+
+                PasswordResetToken resetToken = passwordResetTokenRepository
+                                .findByTokenHash(tokenHash)
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Invalid password reset token"));
+
+                if (resetToken.getUsedAt() != null) {
+
+                        throw new IllegalArgumentException(
+                                        "Password reset token has already been used");
+                }
+
+                if (resetToken.getExpiresAt()
+                                .isBefore(LocalDateTime.now())) {
+
+                        throw new IllegalArgumentException(
+                                        "Password reset token has expired");
+                }
+
+                User user = resetToken.getUser();
+
+                user.setPassword(
+                                passwordEncoder.encode(
+                                                request.getNewPassword()));
+
+                userRepository.save(user);
+
+                resetToken.setUsedAt(
+                                LocalDateTime.now());
+
+                passwordResetTokenRepository.save(
+                                resetToken);
+        }
+
 }

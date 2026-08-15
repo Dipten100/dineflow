@@ -1,9 +1,11 @@
 package com.dineflow.dineflow_backend.controller;
 
 import com.dineflow.dineflow_backend.dto.ApiResponse;
+import com.dineflow.dineflow_backend.dto.auth.ForgotPasswordRequest;
 import com.dineflow.dineflow_backend.dto.auth.LoginRequest;
 import com.dineflow.dineflow_backend.dto.auth.LoginResponse;
 import com.dineflow.dineflow_backend.dto.auth.RegisterRequest;
+import com.dineflow.dineflow_backend.dto.auth.ResetPasswordRequest;
 import com.dineflow.dineflow_backend.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -41,5 +43,29 @@ public class AuthController {
                                 ApiResponse.success(
                                                 "Login successful",
                                                 response));
+        }
+
+        @PostMapping("/forgot-password")
+        public ResponseEntity<ApiResponse<String>> forgotPassword(
+                        @Valid @RequestBody ForgotPasswordRequest request) {
+
+                String token = authService.forgotPassword(request);
+
+                return ResponseEntity.ok(
+                                ApiResponse.success(
+                                                "Password reset token generated",
+                                                token));
+        }
+
+        @PostMapping("/reset-password")
+        public ResponseEntity<ApiResponse<Void>> resetPassword(
+                        @Valid @RequestBody ResetPasswordRequest request) {
+
+                authService.resetPassword(request);
+
+                return ResponseEntity.ok(
+                                ApiResponse.success(
+                                                "Password reset successfully",
+                                                null));
         }
 }

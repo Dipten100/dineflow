@@ -4,6 +4,7 @@ import com.dineflow.dineflow_backend.entity.Permission;
 import com.dineflow.dineflow_backend.entity.Role;
 import com.dineflow.dineflow_backend.entity.User;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
@@ -24,11 +25,13 @@ public class JwtService {
 
         Instant now = Instant.now();
 
+        // Roles
         List<String> roles = user.getRoles()
                 .stream()
                 .map(Role::getName)
                 .toList();
 
+        // Permissions from all user's roles
         List<String> permissions = user.getRoles()
                 .stream()
                 .flatMap(role ->
@@ -45,10 +48,19 @@ public class JwtService {
                         now.plusSeconds(EXPIRATION_SECONDS)
                 )
                 .subject(user.getId().toString())
+
+                // User information
                 .claim("email", user.getEmail())
+
+                // Roles
                 .claim("roles", roles)
+
+                // Permissions ← ADD IT HERE
                 .claim("permissions", permissions)
+
+                // Super Admin
                 .claim("superAdmin", user.isSuperAdmin())
+
                 .build();
 
         return jwtEncoder.encode(
