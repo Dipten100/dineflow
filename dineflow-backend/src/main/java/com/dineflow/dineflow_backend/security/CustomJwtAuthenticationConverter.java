@@ -10,7 +10,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,14 +29,17 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
     }
 
     private Collection<GrantedAuthority> extractCustomAuthorities(Jwt jwt) {
-        // Extract custom authorities from JWT claims if needed
-        Object authoritiesClaim = jwt.getClaim("authorities");
-        if (authoritiesClaim instanceof Collection) {
-            return ((Collection<?>) authoritiesClaim).stream()
+        Collection<GrantedAuthority> authorities = new java.util.ArrayList<>();
+
+        // Extract permissions as authorities
+        Object permissionsClaim = jwt.getClaim("permissions");
+        if (permissionsClaim instanceof Collection) {
+            ((Collection<?>) permissionsClaim).stream()
                     .map(Object::toString)
                     .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
+                    .forEach(authorities::add);
         }
-        return Collections.emptyList();
+
+        return authorities;
     }
 }
