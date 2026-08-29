@@ -8,6 +8,9 @@ import type { FormEvent } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
+// NextAuth Imports
+import { signIn } from 'next-auth/react'
+
 // MUI Imports
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
@@ -47,9 +50,32 @@ const Login = ({ mode }: { mode: Mode }) => {
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    router.push('/')
+    
+    // Get form data
+    const formData = new FormData(e.currentTarget)
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+
+    try {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      })
+
+      if (result?.error) {
+        console.error('Authentication failed:', result.error)
+        // You can add error handling here, like showing an error message
+        return
+      }
+
+      // Redirect to dashboard on successful login
+      router.push('/dashboard')
+    } catch (error) {
+      console.error('Login error:', error)
+    }
   }
 
   return (
@@ -65,10 +91,11 @@ const Login = ({ mode }: { mode: Mode }) => {
               <Typography className='mbs-1'>Please sign-in to your account and start the adventure</Typography>
             </div>
             <form noValidate autoComplete='off' onSubmit={handleSubmit} className='flex flex-col gap-5'>
-              <TextField autoFocus fullWidth label='Email' />
+              <TextField autoFocus fullWidth label='Email' name='email' />
               <TextField
                 fullWidth
                 label='Password'
+                name='password'
                 id='outlined-adornment-password'
                 type={isPasswordShown ? 'text' : 'password'}
                 InputProps={{

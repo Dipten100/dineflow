@@ -4,7 +4,7 @@ import 'react-perfect-scrollbar/dist/css/styles.css'
 // Type Imports
 import type { ChildrenType } from '@core/types'
 
-// Style Imports
+// Component Imports
 import '@/app/globals.css'
 
 // Generated Icon CSS Imports
@@ -21,7 +21,9 @@ const RootLayout = ({ children }: ChildrenType) => {
 
   return (
     <html id='__next' dir={direction}>
-      <body className='flex is-full min-bs-full flex-auto flex-col'>{children}</body>
+      <body className='flex is-full min-bs-full flex-auto flex-col'>
+        {children}
+      </body>
     </html>
   )
 }

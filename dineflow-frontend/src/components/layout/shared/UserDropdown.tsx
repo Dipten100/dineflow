@@ -20,6 +20,8 @@ import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
+import { useAuth } from '@/hooks/useAuth'
+import LogoutButton from '@/components/LogoutButton'
 
 // Styled component for badge content
 const BadgeContentSpan = styled('span')({
@@ -35,11 +37,22 @@ const UserDropdown = () => {
   // States
   const [open, setOpen] = useState(false)
 
+  // get users from auth
+  const { user } = useAuth()
+
   // Refs
   const anchorRef = useRef<HTMLDivElement>(null)
 
   // Hooks
   const router = useRouter()
+
+  const handleLogout = () => {
+    // call logout api
+    
+    
+    // then open dropdown
+    handleDropdownOpen()
+  }
 
   const handleDropdownOpen = () => {
     !open ? setOpen(true) : setOpen(false)
@@ -93,12 +106,12 @@ const UserDropdown = () => {
               <ClickAwayListener onClickAway={e => handleDropdownClose(e as MouseEvent | TouchEvent)}>
                 <MenuList>
                   <div className='flex items-center plb-2 pli-4 gap-2' tabIndex={-1}>
-                    <Avatar alt='John Doe' src='/images/avatars/1.png' />
+                    <Avatar alt='User' src='/images/avatars/1.png' />
                     <div className='flex items-start flex-col'>
                       <Typography className='font-medium' color='text.primary'>
-                        John Doe
+                        {user?.name || 'User'}
                       </Typography>
-                      <Typography variant='caption'>Admin</Typography>
+                      <Typography variant='caption'>{user?.roles?.[0] || 'Role'}</Typography>
                     </div>
                   </div>
                   <Divider className='mlb-1' />
@@ -119,17 +132,7 @@ const UserDropdown = () => {
                     <Typography color='text.primary'>FAQ</Typography>
                   </MenuItem>
                   <div className='flex items-center plb-2 pli-4'>
-                    <Button
-                      fullWidth
-                      variant='contained'
-                      color='error'
-                      size='small'
-                      endIcon={<i className='ri-logout-box-r-line' />}
-                      onClick={e => handleDropdownClose(e, '/login')}
-                      sx={{ '& .MuiButton-endIcon': { marginInlineStart: 1.5 } }}
-                    >
-                      Logout
-                    </Button>
+                    <LogoutButton />
                   </div>
                 </MenuList>
               </ClickAwayListener>
@@ -142,3 +145,4 @@ const UserDropdown = () => {
 }
 
 export default UserDropdown
+
