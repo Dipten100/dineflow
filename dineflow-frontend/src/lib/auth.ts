@@ -62,6 +62,8 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        console.log('Auth JWT callback - Storing user data in token')
+        console.log('Auth JWT callback - accessToken:', user.accessToken ? 'exists' : 'missing')
         token.id = user.id
         token.accessToken = user.accessToken
         token.permissions = user.permissions
@@ -73,6 +75,8 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
+        console.log('Auth session callback - Setting session user data')
+        console.log('Auth session callback - accessToken:', token.accessToken ? 'exists' : 'missing')
         session.user.id = token.id as string
         session.user.accessToken = token.accessToken as string
         session.user.permissions = token.permissions as string[]

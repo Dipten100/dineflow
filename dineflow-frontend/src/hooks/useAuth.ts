@@ -1,7 +1,8 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { clearRedirectPath } from '@/lib/redirect-utils'
 
 export function useAuth() {
   const { data: session, status } = useSession()
@@ -22,6 +23,19 @@ export function useAuth() {
   const isSuperAdmin = user?.superAdmin || false
 
   const logout = async () => {
+    // Clear any stored redirect path
+    clearRedirectPath()
+    
+    // Clear tokens from both storage locations
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('accessToken')
+      sessionStorage.removeItem('accessToken')
+    }
+    
+    // Sign out from NextAuth
+    await signOut({ redirect: false })
+    
+    // Redirect to login
     await router.push('/login')
   }
 

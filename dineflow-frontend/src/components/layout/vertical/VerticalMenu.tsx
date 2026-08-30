@@ -95,26 +95,30 @@ const VerticalMenu = ({
   // Get logged-in user
   const { user } = useAuth()
 
-  const userPermissions = { permissions: user?.permissions ?? [], roles: user?.roles ?? [], superAdmin: user?.superAdmin ?? false }
+  const userPermissions = {
+    permissions: user?.permissions ?? [],
+    roles: user?.roles ?? [],
+    superAdmin: user?.superAdmin ?? false
+  }
   const authorizedNavItems = filterNavItems(navItems, userPermissions)
 
   return (
     <ScrollWrapper
       {...(isBreakpointReached
         ? {
-            className:
-              'bs-full overflow-y-auto overflow-x-hidden',
-            onScroll: (container: any) =>
-              scrollMenu(container, false)
-          }
+          className:
+            'bs-full overflow-y-auto overflow-x-hidden',
+          onScroll: (container: any) =>
+            scrollMenu(container, false)
+        }
         : {
-            options: {
-              wheelPropagation: false,
-              suppressScrollX: true
-            },
-            onScrollY: (container: any) =>
-              scrollMenu(container, true)
-          })}
+          options: {
+            wheelPropagation: false,
+            suppressScrollX: true
+          },
+          onScrollY: (container: any) =>
+            scrollMenu(container, true)
+        })}
     >
       <Menu
         menuItemStyles={menuItemStyles(theme)}

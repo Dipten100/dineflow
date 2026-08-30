@@ -1,11 +1,11 @@
 package com.dineflow.dineflow_backend.dto.permission;
 
+import java.util.List;
+
 public record PermissionResponse(
-    Long id,
-    String name,
-    String description,
-    String module,
-    String action
+    PermissionResponseSummary summary,
+    PermissionResponsePagination pagination,
+    List<PermissionResponseDetail> permissionDetails
 ) {
     
 }

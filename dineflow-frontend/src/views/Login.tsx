@@ -36,6 +36,9 @@ import themeConfig from '@configs/themeConfig'
 // Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'
 
+// Utils Imports
+import { getAndClearRedirectPath } from '@/lib/redirect-utils'
+
 const Login = ({ mode }: { mode: Mode }) => {
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
@@ -52,7 +55,7 @@ const Login = ({ mode }: { mode: Mode }) => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    
+
     // Get form data
     const formData = new FormData(e.currentTarget)
     const email = formData.get('email') as string
@@ -71,8 +74,9 @@ const Login = ({ mode }: { mode: Mode }) => {
         return
       }
 
-      // Redirect to dashboard on successful login
-      router.push('/dashboard')
+      // Redirect to stored path or dashboard on successful login
+      const redirectPath = getAndClearRedirectPath('/dashboard')
+      router.push(redirectPath)
     } catch (error) {
       console.error('Login error:', error)
     }
