@@ -1,6 +1,6 @@
 package com.dineflow.dineflow_backend.security;
 
-import com.dineflow.dineflow_backend.dto.ApiResponse;
+import com.dineflow.dineflow_backend.common.dto.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

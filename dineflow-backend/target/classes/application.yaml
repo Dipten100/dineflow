@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: dineflow-backend
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/dineflow
+    username: root
+    password: 
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
+
+jwt:
+  secret: 8a4f91c2d7e6b3a8f014c2b9e83f5a1d7c04e2b9a8f3c1e7d6b2a4f014c2b9e88a4f91c2d7e6b3a8f014c2b9e83f5a1d7c04e2b9a8f3c1e7d6b2a4f014c2b9e8

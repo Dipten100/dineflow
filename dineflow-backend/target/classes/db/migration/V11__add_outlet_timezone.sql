@@ -1,0 +1,3 @@
+ALTER TABLE outlets
+ADD COLUMN time_zone VARCHAR(50) NOT NULL
+DEFAULT 'Asia/Kolkata';

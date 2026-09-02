@@ -1,8 +1,8 @@
 package com.dineflow.dineflow_backend.security;
 
-import com.dineflow.dineflow_backend.entity.Permission;
-import com.dineflow.dineflow_backend.entity.Role;
-import com.dineflow.dineflow_backend.entity.User;
+import com.dineflow.dineflow_backend.permission.entity.Permission;
+import com.dineflow.dineflow_backend.permission.entity.Role;
+import com.dineflow.dineflow_backend.user.entity.User;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;

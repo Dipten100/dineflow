@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.dineflow.dineflow_backend.DineflowBackendApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.616 s -- in com.dineflow.dineflow_backend.DineflowBackendApplicationTests

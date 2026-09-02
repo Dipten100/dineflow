@@ -6,8 +6,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.dineflow.dineflow_backend.entity.User;
-import com.dineflow.dineflow_backend.repository.UserRepository;
+import com.dineflow.dineflow_backend.user.entity.User;
+import com.dineflow.dineflow_backend.user.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor

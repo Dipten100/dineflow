@@ -3,8 +3,8 @@ package com.dineflow.dineflow_backend.security;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-import com.dineflow.dineflow_backend.entity.User;
-import com.dineflow.dineflow_backend.repository.UserOutletRepository;
+import com.dineflow.dineflow_backend.user.entity.User;
+import com.dineflow.dineflow_backend.useroutlet.repository.UserOutletRepository;
 
 import lombok.RequiredArgsConstructor;
 
